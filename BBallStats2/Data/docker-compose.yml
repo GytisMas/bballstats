@@ -1,0 +1,7 @@
+services:
+ postgres:
+  image: postgres:latest
+  environment:
+   - POSTGRES_PASSWORD=aopwgt159
+  ports:
+   - 5432:5432
