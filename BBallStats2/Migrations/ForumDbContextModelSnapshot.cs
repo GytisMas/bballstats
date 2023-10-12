@@ -21,6 +21,32 @@ namespace BBallStats2.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BBallStats.Data.Entities.AlgorithmImpression", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Positive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("RatingAlgorithmId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RatingAlgorithmId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AlgorithmImpressions");
+                });
+
             modelBuilder.Entity("BBallStats.Data.Entities.AlgorithmStatistic", b =>
                 {
                     b.Property<int>("Id")
@@ -110,6 +136,9 @@ namespace BBallStats2.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("Promoted")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -186,6 +215,25 @@ namespace BBallStats2.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("BBallStats.Data.Entities.AlgorithmImpression", b =>
+                {
+                    b.HasOne("BBallStats.Data.Entities.RatingAlgorithm", "RatingAlgorithm")
+                        .WithMany()
+                        .HasForeignKey("RatingAlgorithmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BBallStats.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RatingAlgorithm");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BBallStats.Data.Entities.AlgorithmStatistic", b =>
                 {
                     b.HasOne("BBallStats.Data.Entities.RatingAlgorithm", "Algorithm")
@@ -224,7 +272,7 @@ namespace BBallStats2.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BBallStats.Data.Entities.PlayerStatistic", "Type")
+                    b.HasOne("BBallStats.Data.Entities.Statistic", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)

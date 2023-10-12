@@ -83,6 +83,7 @@ namespace BBallStats2.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Formula = table.Column<string>(type: "text", nullable: false),
+                    Promoted = table.Column<bool>(type: "boolean", nullable: false),
                     AuthorId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -110,15 +111,42 @@ namespace BBallStats2.Migrations
                 {
                     table.PrimaryKey("PK_PlayerStatistics", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PlayerStatistics_PlayerStatistics_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "PlayerStatistics",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_PlayerStatistics_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerStatistics_Statistics_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "Statistics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AlgorithmImpressions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Positive = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    RatingAlgorithmId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AlgorithmImpressions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AlgorithmImpressions_RatingAlgorithms_RatingAlgorithmId",
+                        column: x => x.RatingAlgorithmId,
+                        principalTable: "RatingAlgorithms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AlgorithmImpressions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -148,6 +176,16 @@ namespace BBallStats2.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AlgorithmImpressions_RatingAlgorithmId",
+                table: "AlgorithmImpressions",
+                column: "RatingAlgorithmId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AlgorithmImpressions_UserId",
+                table: "AlgorithmImpressions",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AlgorithmStatistics_AlgorithmId",
@@ -184,6 +222,9 @@ namespace BBallStats2.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AlgorithmImpressions");
+
+            migrationBuilder.DropTable(
                 name: "AlgorithmStatistics");
 
             migrationBuilder.DropTable(
@@ -193,10 +234,10 @@ namespace BBallStats2.Migrations
                 name: "RatingAlgorithms");
 
             migrationBuilder.DropTable(
-                name: "Statistics");
+                name: "Players");
 
             migrationBuilder.DropTable(
-                name: "Players");
+                name: "Statistics");
 
             migrationBuilder.DropTable(
                 name: "Users");

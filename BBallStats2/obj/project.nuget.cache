@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "X0LfuEnf505qYAm36+VhyjyQf+A/VE18UcJhhwe4Gx/imF86MwPzVH7oFIQ8oRZKM+q2u5Kt/+yEhympdfRVNg==",
+  "dgSpecHash": "nKVxsjco7/K3dR9jebFacVwv0LmEArnxvzuotes74LFvWQvo70BHd2mwd8rWRxj4Q2t9nCe4pvN4F+tsMdh/iA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\BBallStats2\\BBallStats2\\BBallStats2.csproj",
+  "projectFilePath": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\bballstats\\BBallStats2\\BBallStats2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sikau\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",
     "C:\\Users\\sikau\\.nuget\\packages\\fluentvalidation\\11.7.1\\fluentvalidation.11.7.1.nupkg.sha512",

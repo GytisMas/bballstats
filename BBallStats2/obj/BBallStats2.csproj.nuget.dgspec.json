@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\BBallStats2\\BBallStats2\\BBallStats2.csproj": {}
+    "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\bballstats\\BBallStats2\\BBallStats2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\BBallStats2\\BBallStats2\\BBallStats2.csproj": {
+    "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\bballstats\\BBallStats2\\BBallStats2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\BBallStats2\\BBallStats2\\BBallStats2.csproj",
+        "projectUniqueName": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\bballstats\\BBallStats2\\BBallStats2.csproj",
         "projectName": "BBallStats2",
-        "projectPath": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\BBallStats2\\BBallStats2\\BBallStats2.csproj",
+        "projectPath": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\bballstats\\BBallStats2\\BBallStats2.csproj",
         "packagesPath": "C:\\Users\\sikau\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\BBallStats2\\BBallStats2\\obj\\",
+        "outputPath": "C:\\Users\\sikau\\Documents\\Uni\\7 sem\\Saitynai\\bballstats\\BBallStats2\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

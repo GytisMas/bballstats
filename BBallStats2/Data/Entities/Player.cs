@@ -16,5 +16,6 @@ namespace BBallStats.Data.Entities
 		public required PlayerRole Role { get; set; }
 		public required Team CurrentTeam { get; set; }
 
-	}
+        public record PlayerDto(int Id, string Name, int Role, int TeamId);
+    }
 }

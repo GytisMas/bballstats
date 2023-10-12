@@ -12,6 +12,7 @@ namespace BBallStats.Data
         public DbSet<User> Users { get; set; }
         public DbSet<RatingAlgorithm> RatingAlgorithms { get; set; }
         public DbSet<AlgorithmStatistic> AlgorithmStatistics { get; set; }
+        public DbSet<AlgorithmImpression> AlgorithmImpressions { get; set; }
         public DbSet<Statistic> Statistics { get; set; }
 
         public ForumDbContext(IConfiguration configuration)
