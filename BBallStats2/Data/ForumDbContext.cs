@@ -1,15 +1,17 @@
 ﻿using BBallStats.Data.Entities;
+using BBallStats2.Auth.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BBallStats.Data
 {
-    public class ForumDbContext : DbContext
+    public class ForumDbContext : IdentityDbContext<ForumRestUser>
     {
         private readonly IConfiguration _configuration;
         public DbSet<Team> Teams { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<PlayerStatistic> PlayerStatistics { get; set; }
-        public DbSet<User> Users { get; set; }
+        //public DbSet<User> Users { get; set; }
         public DbSet<RatingAlgorithm> RatingAlgorithms { get; set; }
         public DbSet<AlgorithmStatistic> AlgorithmStatistics { get; set; }
         public DbSet<AlgorithmImpression> AlgorithmImpressions { get; set; }
