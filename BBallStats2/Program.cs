@@ -7,6 +7,7 @@ using BBallStats2.Auth.Model;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -85,6 +86,9 @@ app.UseAuthorization();
 
 using var scope = app.Services.CreateScope();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
+
+var dbContext = scope.ServiceProvider.GetRequiredService<ForumDbContext>();
+dbContext.Database.Migrate();
 
 await dbSeeder.SeedAsync();
 

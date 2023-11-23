@@ -46,7 +46,7 @@ namespace BBallStats2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AlgorithmImpressions");
+                    b.ToTable("AlgorithmImpressions", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats.Data.Entities.AlgorithmStatistic", b =>
@@ -69,7 +69,7 @@ namespace BBallStats2.Migrations
 
                     b.HasIndex("StatTypeId");
 
-                    b.ToTable("AlgorithmStatistics");
+                    b.ToTable("AlgorithmStatistics", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats.Data.Entities.Player", b =>
@@ -94,7 +94,7 @@ namespace BBallStats2.Migrations
 
                     b.HasIndex("CurrentTeamId");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats.Data.Entities.PlayerStatistic", b =>
@@ -120,7 +120,7 @@ namespace BBallStats2.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("PlayerStatistics");
+                    b.ToTable("PlayerStatistics", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats.Data.Entities.RatingAlgorithm", b =>
@@ -146,7 +146,7 @@ namespace BBallStats2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RatingAlgorithms");
+                    b.ToTable("RatingAlgorithms", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats.Data.Entities.Statistic", b =>
@@ -170,7 +170,7 @@ namespace BBallStats2.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statistics");
+                    b.ToTable("Statistics", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats.Data.Entities.Team", b =>
@@ -187,7 +187,7 @@ namespace BBallStats2.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Teams", (string)null);
                 });
 
             modelBuilder.Entity("BBallStats2.Auth.Model.ForumRestUser", b =>
