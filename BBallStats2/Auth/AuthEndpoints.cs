@@ -32,7 +32,7 @@ namespace BBallStats2.Auth
 
                 await userManager.AddToRoleAsync(newUser, ForumRoles.Regular);
 
-                return Results.Created($"/api/login", new UserDto(newUser.Id, newUser.UserName, newUser.Email));
+                return Results.Created($"/api/login", new UserWithoutRolesDto(newUser.Id, newUser.UserName, newUser.Email));
             });
 
             app.MapPost("api/login", async (UserManager<ForumRestUser> userManager, JwtTokenService jwtTokenService, [Validate] LoginUserDto loginUserDto) =>
@@ -74,7 +74,7 @@ namespace BBallStats2.Auth
                 if (!changePasswordResult.Succeeded)
                     return Results.UnprocessableEntity();
 
-                return Results.Ok(new UserDto(user.Id, user.UserName, user.Email));
+                return Results.Ok(new UserWithoutRolesDto(user.Id, user.UserName, user.Email));
             });
 
             app.MapPost("api/accessToken", async (UserManager<ForumRestUser> userManager, JwtTokenService jwtTokenService, RefreshAccessTokenDto refreshAccessTokenDto) =>

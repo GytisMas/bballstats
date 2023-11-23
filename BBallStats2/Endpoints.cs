@@ -26,10 +26,16 @@ namespace BBallStats2
     {
         public static void GetUserEndpoints(RouteGroupBuilder usersGroup)
         {
-            usersGroup.MapGet("users", async (UserManager<ForumRestUser> userManager, ForumDbContext dbContext, CancellationToken cancellationToken) =>
+            usersGroup.MapGet("users", [Authorize(Roles = ForumRoles.Admin)] async (UserManager<ForumRestUser> userManager, HttpContext httpContext, ForumDbContext dbContext, CancellationToken cancellationToken) =>
             {
-                return (await userManager.GetUsersInRoleAsync(ForumRoles.Regular))
-                    .Select(o => new UserDto(o.Id, o.UserName, o.Email));
+                if (!httpContext.User.IsInRole(ForumRoles.Admin))
+                {
+                    return Results.Forbid();
+                }
+                var userList = (await dbContext.Users.ToListAsync(cancellationToken))
+                .Select(o => new UserWithoutRolesDto(o.Id, o.UserName, o.Email));
+
+                return Results.Ok(userList);
             });
 
             usersGroup.MapGet("users/{userId}", async (string userId, UserManager<ForumRestUser> userManager, ForumDbContext dbContext) =>
@@ -81,7 +87,7 @@ namespace BBallStats2
                     roles.Add(ForumRoles.Regular);
                 await userManager.AddToRolesAsync(newUser, roles);
 
-                return Results.Created($"/api/Users/{newUser.Id}", new UserDto(newUser.Id, newUser.UserName, newUser.Email));
+                return Results.Created($"/api/Users/{newUser.Id}", new UserDto(newUser.Id, newUser.UserName, newUser.Email, roles));
             });
 
             usersGroup.MapPut("users/{userId}", [Authorize(Roles = ForumRoles.Admin)] async (string userId, HttpContext httpContext, UserManager<ForumRestUser> userManager, [Validate] UpdateUserDto updateUserDto) =>
@@ -97,7 +103,7 @@ namespace BBallStats2
 
                 var changePasswordResult = await userManager.ChangePasswordAsync(user, updateUserDto.OldPassword, updateUserDto.NewPassword);
                 if (!changePasswordResult.Succeeded)
-                    return Results.UnprocessableEntity();
+                    return Results.UnprocessableEntity("Password not changed successfully");
 
                 user.Email = updateUserDto.Email;
                 await userManager.UpdateAsync(user);
@@ -115,7 +121,7 @@ namespace BBallStats2
                 await userManager.RemoveFromRolesAsync(user, ForumRoles.All);
                 await userManager.AddToRolesAsync(user, roles);
 
-                return Results.Ok(new UserDto(user.Id, user.UserName, user.Email));
+                return Results.Ok(new UserWithoutRolesDto(user.Id, user.UserName, user.Email));
             });
 
             usersGroup.MapDelete("users/{userId}", [Authorize(Roles = ForumRoles.Admin)] async (string userId, HttpContext httpContext, UserManager<ForumRestUser> userManager) =>
@@ -138,7 +144,6 @@ namespace BBallStats2
         {
             ratingsGroup.MapGet("ratingAlgorithms", async (string userId, UserManager<ForumRestUser> userManager, ForumDbContext dbContext, CancellationToken cancellationToken) =>
             {
-                //var user = await userManager.FindByIdAsync(userId);
                 var user = await userManager.FindByIdAsync(userId);
                 if (user == null)
                     return Results.NotFound();
@@ -171,7 +176,7 @@ namespace BBallStats2
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
                     || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
                 {
-                    return Results.Forbid();
+                    return Results.UnprocessableEntity($"{httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub)} | {userId}");
                 }
 
                 List<int> formulaStatIds = createRatingAlgorithmDto.Formula.Split(") ")[0]
@@ -218,7 +223,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
                     return Results.Forbid();
 
 
@@ -272,7 +277,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
                     return Results.Forbid();
 
                 dbContext.Remove(ratingAlgorithm);
@@ -471,7 +476,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
                     return Results.Forbid();
 
                 var statistic = await dbContext.Statistics.FirstOrDefaultAsync(r => r.Id == createAlgorithmStatisticDto.StatisticId);
@@ -506,7 +511,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
                     return Results.Forbid();
 
                 var statistic = await dbContext.Statistics.FirstOrDefaultAsync(r => r.Id == updateAlgorithmStatisticDto.StatisticId);
@@ -536,7 +541,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
                     return Results.Forbid();
 
                 dbContext.Remove(algorithmStatistic);
@@ -778,14 +783,14 @@ namespace BBallStats2
                 if (ratingAlgorithm == null)
                     return Results.NotFound();
 
-                await dbContext.Users.ToListAsync(cancellationToken);
 
                 var algorithmImpressions = (await dbContext.AlgorithmImpressions.ToListAsync(cancellationToken))
                     .Where(o => o.RatingAlgorithm == ratingAlgorithm)
                     .Select(o => new AlgorithmImpressionDto(
                         o.Id,
                         o.Positive,
-                        ratingAlgorithmId));
+                        ratingAlgorithmId,
+                        o.UserId));
 
                 return Results.Ok(algorithmImpressions);
             });
@@ -804,9 +809,8 @@ namespace BBallStats2
                 if (algorithmImpression == null)
                     return Results.NotFound();
 
-                await dbContext.Users.ToListAsync(cancellationToken);
 
-                return Results.Ok(new AlgorithmImpressionDto(algorithmImpression.Id, algorithmImpression.Positive, ratingAlgorithmId));
+                return Results.Ok(new AlgorithmImpressionDto(algorithmImpression.Id, algorithmImpression.Positive, ratingAlgorithmId, algorithmImpression.UserId));
             });
 
             algoImpressionsStatsGroup.MapPost("algorithmImpressions", [Authorize(Roles = ForumRoles.Regular)] async (string userId, UserManager<ForumRestUser> userManager, HttpContext httpContext, int ratingAlgorithmId, [Validate] CreateAlgorithmImpressionDto createAlgorithmImpressionDto, ForumDbContext dbContext) =>
@@ -819,13 +823,16 @@ namespace BBallStats2
                 if (ratingAlgorithm == null)
                     return Results.NotFound();
 
-                var impressionUser = await dbContext.Users.FirstOrDefaultAsync(r => r.Id == createAlgorithmImpressionDto.UserId);
+                var impressionUser = await dbContext.Users.FirstOrDefaultAsync(r => r.Id == httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub));
                 if (impressionUser == null)
                     return Results.NotFound();
 
-                if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                if (!httpContext.User.IsInRole(ForumRoles.Regular))
                     return Results.Forbid();
+
+                var existingImpression = await dbContext.AlgorithmImpressions.FirstOrDefaultAsync(i => i.UserId == impressionUser.Id);
+                if (existingImpression != null)
+                    return Results.UnprocessableEntity("User has already rated this algorithm");
 
                 var algorithmImpression = new AlgorithmImpression()
                 {
@@ -838,7 +845,7 @@ namespace BBallStats2
                 await dbContext.SaveChangesAsync();
 
                 return Results.Created($"/api/Users/{user.Id}/RatingAlgorithms/{ratingAlgorithm.Id}/AlgorithmImpressions/{algorithmImpression.Id}",
-                    new AlgorithmImpressionDto(algorithmImpression.Id, algorithmImpression.Positive, ratingAlgorithmId));
+                    new AlgorithmImpressionDto(algorithmImpression.Id, algorithmImpression.Positive, ratingAlgorithmId, algorithmImpression.UserId));
             });
 
             algoImpressionsStatsGroup.MapPut("algorithmImpressions/{algorithmImpressionId}", [Authorize(Roles = ForumRoles.Regular)] async (string userId, UserManager<ForumRestUser> userManager, HttpContext httpContext, int ratingAlgorithmId, int algorithmImpressionId, [Validate] UpdateAlgorithmImpressionDto updateAlgorithmImpressionDto, ForumDbContext dbContext) =>
@@ -855,20 +862,20 @@ namespace BBallStats2
                 if (algorithmImpression == null)
                     return Results.NotFound();
 
-                var impressionUser = await dbContext.Users.FirstOrDefaultAsync(r => r.Id == updateAlgorithmImpressionDto.UserId);
+                var impressionUser = await dbContext.Users.FirstOrDefaultAsync(r => r.Id == httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub));
                 if (impressionUser == null)
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || impressionUser.Id != algorithmImpression.UserId)
                     return Results.Forbid();
 
-                algorithmImpression.User = impressionUser;
+                algorithmImpression.Positive = updateAlgorithmImpressionDto.Positive;
 
                 dbContext.Update(algorithmImpression);
                 await dbContext.SaveChangesAsync();
 
-                return Results.Ok(new AlgorithmImpressionDto(algorithmImpression.Id, algorithmImpression.Positive, ratingAlgorithmId));
+                return Results.Ok(new AlgorithmImpressionDto(algorithmImpression.Id, algorithmImpression.Positive, ratingAlgorithmId, algorithmImpression.UserId));
             });
 
             algoImpressionsStatsGroup.MapDelete("algorithmImpressions/{algorithmImpressionId}", [Authorize(Roles = ForumRoles.Regular)] async (string userId, UserManager<ForumRestUser> userManager, HttpContext httpContext, int ratingAlgorithmId, int algorithmImpressionId, ForumDbContext dbContext, CancellationToken cancellationToken) =>
@@ -886,7 +893,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 if (!httpContext.User.IsInRole(ForumRoles.Regular)
-                    && httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != userId)
+                    || httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub) != algorithmImpression.UserId)
                     return Results.Forbid();
 
                 dbContext.Remove(algorithmImpression);
@@ -898,7 +905,8 @@ namespace BBallStats2
     }
 }
 
-public record UserDto(string Id, string Username, string Email, IList<string> roles = default);
+public record UserDto(string Id, string Username, string Email, IList<string> roles);
+public record UserWithoutRolesDto(string Id, string Username, string Email);
 public record CreateUserDto(string Username, string Password, string Email, int Role);
 public record UpdateUserDto(string OldPassword, string NewPassword, string Email, int Role);
 public record CreateRatingAlgorithmDto(string Formula, bool Promoted);
@@ -911,8 +919,8 @@ public record CreateAlgorithmStatisticDto(int? StatisticId);
 public record UpdateAlgorithmStatisticDto(int? StatisticId);
 public record CreatePlayerStatisticDto(float Value, int? StatisticId);
 public record UpdatePlayerStatisticDto(float Value, int? StatisticId);
-public record CreateAlgorithmImpressionDto(bool Positive, string? UserId);
-public record UpdateAlgorithmImpressionDto(bool Positive, string? UserId);
+public record CreateAlgorithmImpressionDto(bool Positive);
+public record UpdateAlgorithmImpressionDto(bool Positive);
 public record CreatePlayerDto(string Name, PlayerRole? Role);
 public record UpdatePlayerDto(string Name, PlayerRole? Role);
 
@@ -1035,7 +1043,6 @@ public class CreateAlgorithmImpressionDtoValidator : AbstractValidator<CreateAlg
 {
     public CreateAlgorithmImpressionDtoValidator()
     {
-        RuleFor(dto => dto.UserId).NotEmpty().NotNull();
         RuleFor(dto => dto.Positive).NotNull();
     }
 }
@@ -1044,7 +1051,6 @@ public class UpdateAlgorithmImpressionDtoValidator : AbstractValidator<UpdateAlg
 {
     public UpdateAlgorithmImpressionDtoValidator()
     {
-        RuleFor(dto => dto.UserId).NotEmpty().NotNull();
         RuleFor(dto => dto.Positive).NotNull();
     }
 }
