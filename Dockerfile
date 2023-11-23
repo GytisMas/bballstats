@@ -1,12 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
-WORKDIR /bballstats2
+WORKDIR /BBallStats2
 
 # copy csproj and restore as distinct layers
-COPY bballstats2/*.csproj .
+COPY BBallStats2/*.csproj .
 RUN dotnet restore -r linux-musl-x64 /p:PublishReadyToRun=true
 
 # copy everything else and build app
-COPY bballstats2/. .
+COPY BBallStats2/. .
 RUN dotnet publish -c Release -o /app -r linux-musl-x64 --self-contained true --no-restore /p:PublishReadyToRun=true /p:PublishSingleFile=true
 
 # final stage/image

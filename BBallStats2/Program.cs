@@ -15,6 +15,18 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddDbContext<ForumDbContext>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddTransient<JwtTokenService>();
@@ -67,6 +79,7 @@ Endpoints.GetPlayerStatisticEndpoints(playerStatisticsGroup);
 
 app.AddAuthApi();
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
