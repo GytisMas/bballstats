@@ -740,6 +740,7 @@ namespace BBallStats2
                     return Results.NotFound();
 
                 playerStatistic.Type = statistic;
+                playerStatistic.Value = updatePlayerStatisticDto.Value;
 
                 dbContext.Update(playerStatistic);
                 await dbContext.SaveChangesAsync();
