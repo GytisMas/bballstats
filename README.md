@@ -1,7 +1,7 @@
 # bballstats
 Sports (basketball) statistics web application. Features include user authentication / authorisation, statistics management (based on user role) of basketball teams / players.
 Unique feature (WIP): users can create their own rating systems for players by writing mathematical formulas that use specific statistic types. Users can find those rating 'algorithms' and see how players are ranked by them.
-Currently features only a back-end API which is accessible from https://whale-app-wxvqi.ondigitalocean.app/.
+Deployed using DigitalOcean. Currently features only a back-end API which is accessible from https://whale-app-wxvqi.ondigitalocean.app/.
 
 API
 
