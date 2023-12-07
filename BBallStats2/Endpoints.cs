@@ -140,6 +140,17 @@ namespace BBallStats2
             });
         }
 
+        public static void GetAllRatingAlgorithms(RouteGroupBuilder ratingsGroup)
+        {
+            ratingsGroup.MapGet("ratingAlgorithms", async (ForumDbContext dbContext, CancellationToken cancellationToken) =>
+            {
+
+                var ratingAlgorithms = (await dbContext.RatingAlgorithms.ToListAsync(cancellationToken))
+                    .Select(o => new RatingAlgorithmDto(o.Id, o.Formula, o.Promoted, o.UserId));
+                return Results.Ok(ratingAlgorithms);
+            });
+        }
+
         public static void GetRatingAlgorithmEndpoints(RouteGroupBuilder ratingsGroup)
         {
             ratingsGroup.MapGet("ratingAlgorithms", async (string userId, UserManager<ForumRestUser> userManager, ForumDbContext dbContext, CancellationToken cancellationToken) =>
@@ -292,6 +303,13 @@ namespace BBallStats2
             statisticsGroup.MapGet("statistics", async (ForumDbContext dbContext, CancellationToken cancellationToken) =>
             {
                 return (await dbContext.Statistics.ToListAsync(cancellationToken))
+                    .Select(o => new StatisticDto(o.Id, o.Name, o.DisplayName, (int)o.Status));
+            });
+
+            statisticsGroup.MapGet("statistics/v", async (ForumDbContext dbContext, CancellationToken cancellationToken) =>
+            {
+                return (await dbContext.Statistics.ToListAsync(cancellationToken))
+                    .Where(o => o.Status == Visibility.Public)
                     .Select(o => new StatisticDto(o.Id, o.Name, o.DisplayName, (int)o.Status));
             });
 
@@ -831,9 +849,11 @@ namespace BBallStats2
                 if (!httpContext.User.IsInRole(ForumRoles.Regular))
                     return Results.Forbid();
 
-                var existingImpression = await dbContext.AlgorithmImpressions.FirstOrDefaultAsync(i => i.UserId == impressionUser.Id);
+                var existingImpression = await dbContext.AlgorithmImpressions.FirstOrDefaultAsync(i => i.RatingAlgorithm.Id == ratingAlgorithm.Id && i.UserId == impressionUser.Id);
                 if (existingImpression != null)
+                {
                     return Results.UnprocessableEntity("User has already rated this algorithm");
+                }
 
                 var algorithmImpression = new AlgorithmImpression()
                 {

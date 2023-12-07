@@ -24,7 +24,8 @@ builder.Services.AddCors(options =>
             policy
             .WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
         });
 });
 
@@ -59,6 +60,9 @@ Endpoints.GetStatisticEndpoints(statisticsGroup);
 
 var usersGroup = app.MapGroup("/api").WithValidationFilter();
 Endpoints.GetUserEndpoints(usersGroup);
+
+var allRatings = app.MapGroup("api").WithValidationFilter();
+Endpoints.GetAllRatingAlgorithms(allRatings);
 
 var ratingsGroup = app.MapGroup("/api/users/{userId}").WithValidationFilter();
 Endpoints.GetRatingAlgorithmEndpoints(ratingsGroup);
