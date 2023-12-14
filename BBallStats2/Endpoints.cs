@@ -176,7 +176,7 @@ namespace BBallStats2
                 if (ratingAlgorithm == null)
                     return Results.NotFound();
 
-                return Results.Ok(ratingAlgorithm);
+                return Results.Ok(new RatingAlgorithmDto(ratingAlgorithm.Id, ratingAlgorithm.Formula, ratingAlgorithm.Promoted, ratingAlgorithm.UserId));
             });
 
             ratingsGroup.MapPost("ratingAlgorithms", [Authorize(Roles = ForumRoles.Regular)] async (string userId, UserManager<ForumRestUser> userManager, [Validate] CreateRatingAlgorithmDto createRatingAlgorithmDto, HttpContext httpContext, ForumDbContext dbContext) =>
@@ -274,7 +274,7 @@ namespace BBallStats2
                 dbContext.Update(ratingAlgorithm);
                 await dbContext.SaveChangesAsync();
 
-                return Results.Ok(ratingAlgorithm);
+                return Results.Ok(new RatingAlgorithmDto(ratingAlgorithm.Id, ratingAlgorithm.Formula, ratingAlgorithm.Promoted, ratingAlgorithm.UserId));
             });
 
             ratingsGroup.MapDelete("ratingAlgorithms/{ratingAlgorithmId}", [Authorize(Roles = ForumRoles.Regular)] async (string userId, UserManager<ForumRestUser> userManager, int ratingAlgorithmId, ForumDbContext dbContext, HttpContext httpContext, CancellationToken cancellationToken) =>
