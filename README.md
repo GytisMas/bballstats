@@ -2,7 +2,7 @@
 Sports (basketball) statistics web application. Features include user authentication / authorisation, statistics management (based on user role) of basketball teams / players.
 Unique feature (WIP): users can create their own rating systems for players by writing mathematical formulas that use specific statistic types. Users can find those rating 'algorithms' and see how players are ranked by them.
 
-Deployed using DigitalOcean. API data can be accessed through a front end made with React. 
+Deployed using DigitalOcean. API data can be accessed through a website made with React. 
 
 Website link https://whale-app-2-mg7ek.ondigitalocean.app/.
 
